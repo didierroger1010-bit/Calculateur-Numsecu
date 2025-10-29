@@ -295,7 +295,7 @@ fetch("https://didierroger1010-bit.github.io/Calculateur-Numsecu/communes.json")
   .then(data => {
       communes = data;
       buildIndex();
-      input.disabled = false;
+      input.disabled = false; // Le champ devient actif
   })
   .catch(err => console.error("Erreur lors du chargement des communes :", err));
 
@@ -303,6 +303,7 @@ fetch("https://didierroger1010-bit.github.io/Calculateur-Numsecu/communes.json")
 
 </body>
 </html>
+
 
 
 
