@@ -293,7 +293,7 @@ function showSuggestions(list){
 
 function selectCommune(c){
     document.getElementById("villeInput").value=c.nom+" ("+c.code_postal+")";
-    document.getElementById("commune").value=c.code_insee;
+    document.getElementById('commune').value = String(c.code_insee).slice(-3);
     suggestions.innerHTML="";
 }
 
@@ -321,6 +321,7 @@ loadCommunes();
 
 </body>
 </html>
+
 
 
 
