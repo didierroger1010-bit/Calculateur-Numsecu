@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Calcul clé du numéro de Sécurité Sociale</title>
+<link rel="icon" type="image/png" href="carte-vitale.PNG" />
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -16,51 +17,10 @@ body {
     background-attachment: fixed;
 }
 
-/* Ton bloc principal */
-fieldset {
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 1rem;
-    background: white;
-    margin-top: -3rem;
-    max-width: 480px;
-}
-
-/* Le panneau explicatif */
-aside {
-    background: #fff8d5;
-    border-left: 5px solid #ffcc00;
-    padding: 1.5rem 2rem;
-    position: fixed;
-    top: 2rem;
-    right: 2rem;
-    width: 340px;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    line-height: 1.6;
-    font-size: 1rem;
-}
-
-/* ======================= */
-/* 🎯 AJOUT POUR MOBILE    */
-/* ======================= */
-/* Mobile : max 768px */
-/* Pour mobile (tout ce qui est <= 768px) */
-@media (max-width: 768px) {
-    aside {
-        position: relative;   /* dans le flux du document */
-        width: 100%;          /* prend toute la largeur */
-        max-height: none;     /* pas de limite */
-        overflow: visible;    /* le scroll sera celui de la page */
-        margin: 1rem 0;       /* espace autour */
-        box-shadow: none;
-    }
-}
-
+/* Titres et champs */
 h1 { color: #ffffff; }
-fieldset { border: 1px solid #ccc; border-radius: 8px; padding: 1rem; background: white; margin-top: -3rem; max-width: 480px; }
-legend { font-weight: bold; color: #003366; padding-top: 3rem;}
+fieldset { border: 1px solid #ccc; border-radius: 8px; padding: 1rem; background: white; margin-top: 1rem; max-width: 480px; }
+legend { font-weight: bold; color: #003366; }
 label { display: block; margin-top: 0.6rem; }
 input, select { padding: 0.4rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 6px; width: auto; min-width: 120px; max-width: 250px; box-sizing: border-box; }
 select#sexe { background: #3aa956; color: white; font-weight: bold; }
@@ -73,14 +33,46 @@ button[type="reset"] { background: #888; }
 .copy-btn { margin-left: 0.5rem; background: #555; }
 .copied { color: green; margin-left: 0.5rem; }
 .flex { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
-aside { background: #fff8d5; border-left: 5px solid #ffcc00; padding: 1.5rem 2rem; position: fixed; top: 2rem; right: 2rem; width: 340px; max-height: 90vh; overflow-y: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); line-height: 1.6; font-size: 1rem; }
-aside strong { display: block; margin-bottom: 0.8rem; font-size: 1.1rem; }
-aside ul { padding-left: 1.3rem; margin-top: 0.5rem; }
-aside li { margin-bottom: 0.8rem; }
-ul#suggestions { list-style: none; padding: 0; margin: 0; border: 1px solid #ccc; max-width: 300px; position: absolute; background: #fff; z-index: 1000; max-height: 300px; overflow-y: auto; }
+
+/* === Container layout === */
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Aside stylé et scrollable */
+aside {
+    max-height: 300px;
+    overflow-y: auto;
+    background: #fff8d5;
+    border-left: 5px solid #ffcc00;
+    padding: 1.5rem 2rem;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* Version desktop : aside à gauche, formulaire à droite */
+@media(min-width: 768px) {
+    .container {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+    aside {
+        width: 300px;
+        flex-shrink: 0;
+        max-height: none;
+    }
+    form {
+        width: calc(100% - 320px);
+    }
+}
+
+/* Suggestions autocomplete */
+ul#suggestions { list-style: none; padding: 0; margin: 0; border: 1px solid #ccc; max-width: 300px; background: #fff; z-index: 1000; max-height: 300px; overflow-y: auto; position: absolute; }
 ul#suggestions li { padding: 5px; cursor: pointer; }
 ul#suggestions li.highlight { background-color: #eee; }
 mark { background-color: yellow; font-weight: bold; }
+
 </style>
 </head>
 <body>
@@ -88,11 +80,11 @@ mark { background-color: yellow; font-weight: bold; }
 <h1>
   Calcul clé numéro sécu - by Ghost
   <span style="font-size:1.2em; margin-left:0.5em;">💥</span>
-  <img src="https://didierroger1010-bit.github.io/Calculateur-Numsecu/carte-vitale.png" alt="Carte Vitale"
+  <img src="carte-vitale.png" alt="Carte Vitale"
        style="height:1.5em; vertical-align:middle; border-radius:6px; margin-left:0.5em;">
 </h1>
 
-<link rel="icon" type="image/png" href="carte-vitale.PNG" />
+<div class="container">
 
 <aside>
 <strong>Mode d’emploi de l’outil de calcul clé sécu</strong>
@@ -100,10 +92,10 @@ mark { background-color: yellow; font-weight: bold; }
 <ul>
 <li><b>Le sexe</b> (1 pour les hommes ; 2 pour les femmes) ;</li>
 <li><b>L’année de naissance</b> (si vous êtes né en 1970, tapez 70) ;</li>
-<li><b>Le mois de naissance</b> (janvier = 01, février = 02, etc.) ;</li>
-<li><b>Le numéro du département de naissance</b> (Ain = 01, Aisne = 02… Paris = 75…). Les ressortissants étrangers taperont 99 ;</li>
-<li><b>Le code de la commune de naissance</b> (code officiel INSEE sur 3 chiffres, rempli automatiquement si vous utilisez la recherche) ;</li>
-<li><b>Le numéro d’ordre de naissance</b> qui permet de distinguer les individus nés dans la même localité et à la même date.</li>
+<li><b>Le mois de naissance</b> ;</li>
+<li><b>Le numéro du département</b> ;</li>
+<li><b>Le code de la commune</b> ;</li>
+<li><b>Le numéro d’ordre</b>.</li>
 </ul>
 </aside>
 
@@ -138,6 +130,8 @@ mark { background-color: yellow; font-weight: bold; }
 </fieldset>
 </form>
 
+</div>
+
 <div id="resultat" style="display:none;">
 <h3 style="color:#009739; font-weight:bold;">✔️ N° sécurité sociale prêt à être copié!</h3>
 <div class="flex">
@@ -146,7 +140,6 @@ mark { background-color: yellow; font-weight: bold; }
 <span id="copiedMsg" class="copied" style="display:none;">Copié ✅</span>
 <p><strong>Numéro sans clé :</strong> <span id="numero13"></span></p>
 <p><strong>Clé calculée :</strong> <span id="cle"></span></p>
-
 </div>
 </div>
 
@@ -278,82 +271,48 @@ function search(query){
         const key=query.substring(0,3);
         if(indexCP[key]) results=results.concat(indexCP[key].filter(c=>c.code_postal.includes(query)));
     }
-    const seen=new Set();
-    results=results.filter(c=>{
-        const id=c.code_insee;
-        if(seen.has(id)) return false;
-        seen.add(id);
-        return true;
-    });
-    return results;
+    return results.slice(0,10);
 }
 
-function highlightMatch(text, query){
-    const regex=new RegExp(`(${query})`, 'i');
-    return text.replace(regex,'<mark>$1</mark>');
-}
-
-function updateSuggestions(){
-    const val=input.value.trim();
-    suggestions.innerHTML='';
+function showSuggestions(list){
+    suggestions.innerHTML="";
     selectedIndex=-1;
-    if(!val) return;
-    const matches=search(val);
-    matches.forEach(c=>{
+    list.forEach(c=>{
         const li=document.createElement('li');
-        li.innerHTML=`${highlightMatch(c.nom,val)} / ${highlightMatch(c.code_postal,val)}`;
-        li.addEventListener('click',()=>selectItem(c));
+        li.textContent=c.nom+" ("+c.code_postal+")";
+        li.dataset.code=c.code_insee;
+        li.addEventListener("click",()=>selectCommune(c));
         suggestions.appendChild(li);
     });
 }
 
-function selectItem(commune){
-    input.value=`${commune.nom} / ${commune.code_postal}`;
-    // Remplir le champ #commune avec les 3 derniers chiffres du code INSEE
-    document.getElementById('commune').value = commune.code_insee.slice(-3);
-    suggestions.innerHTML='';
+function selectCommune(c){
+    document.getElementById("villeInput").value=c.nom+" ("+c.code_postal+")";
+    document.getElementById("commune").value=c.code_insee;
+    suggestions.innerHTML="";
 }
 
-input.addEventListener('input',updateSuggestions);
-input.addEventListener('keydown',function(e){
-    const items=suggestions.querySelectorAll('li');
-    if(!items.length) return;
-    if(e.key==='ArrowDown'){ selectedIndex=(selectedIndex+1)%items.length; updateHighlight(items); e.preventDefault(); }
-    else if(e.key==='ArrowUp'){ selectedIndex=(selectedIndex-1+items.length)%items.length; updateHighlight(items); e.preventDefault(); }
-    else if(e.key==='Enter'){ 
-        if(selectedIndex>=0){ selectItem(communes.find(c=>`${c.nom} / ${c.code_postal}`===items[selectedIndex].textContent)); }
-        e.preventDefault();
+async function loadCommunes(){
+    try{
+        const resp=await fetch("communes.json");
+        communes=await resp.json();
+        buildIndex();
+        input.disabled=false;
+    }catch(e){
+        console.error("Impossible de charger le fichier JSON",e);
     }
+}
+
+input.addEventListener("input",e=>{
+    const val=e.target.value;
+    if(val.length<2){ suggestions.innerHTML=""; return; }
+    const res=search(val);
+    showSuggestions(res);
 });
 
-function updateHighlight(items){
-    items.forEach((li,idx)=>li.classList.toggle('highlight',idx===selectedIndex));
-}
-
-/* ==== Chargement JSON communes ==== */
-fetch("https://didierroger1010-bit.github.io/Calculateur-Numsecu/communes.json")
-  .then(response => response.json())
-  .then(data => {
-      communes = data; console.log(communes);
-      buildIndex();
-      input.disabled = false; // Le champ devient actif
-  })
-  .catch(err => console.error("Erreur lors du chargement des communes :", err));
+loadCommunes();
 
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
