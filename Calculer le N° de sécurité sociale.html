@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Calcul clé du numéro de Sécurité Sociale</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 2rem;
+    color: #111;
+    margin-right: 400px;
+    background-image: url('mur.jpg');
+    background-size: cover;         /* L'image couvre tout l'écran */
+    background-position: center;    /* Centrée */
+    background-repeat: no-repeat;   /* Pas de répétition */
+    background-attachment: fixed;   /* L'image reste fixe au scroll */
+}
+h1 { color: #ffffff; }
+fieldset { border: 1px solid #ccc; border-radius: 8px; padding: 1rem; background: white; margin-top: -3rem; max-width: 480px; }
+legend { font-weight: bold; color: #003366; padding-top: 3rem;}
+label { display: block; margin-top: 0.6rem; }
+input, select { padding: 0.4rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 6px; width: auto; min-width: 120px; max-width: 250px; box-sizing: border-box; }
+select#sexe { background: #3aa956; color: white; font-weight: bold; }
+button { padding: 0.5rem 1rem; border: none; color: white; border-radius: 6px; cursor: pointer; }
+button[type="submit"] { background: #0077cc; }
+button[type="submit"]:hover { background: #005fa3; }
+button[type="reset"] { background: #888; }
+#resultat { margin-top: 1rem; padding: 1rem; background: #eef6ff; border: 1px solid #cce0ff; border-radius: 8px; max-width: 480px; }
+.error { color: #b00020; margin-top: 0.5rem; }
+.copy-btn { margin-left: 0.5rem; background: #555; }
+.copied { color: green; margin-left: 0.5rem; }
+.flex { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+aside { background: #fff8d5; border-left: 5px solid #ffcc00; padding: 1.5rem 2rem; position: fixed; top: 2rem; right: 2rem; width: 340px; max-height: 90vh; overflow-y: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); line-height: 1.6; font-size: 1rem; }
+aside strong { display: block; margin-bottom: 0.8rem; font-size: 1.1rem; }
+aside ul { padding-left: 1.3rem; margin-top: 0.5rem; }
+aside li { margin-bottom: 0.8rem; }
+ul#suggestions { list-style: none; padding: 0; margin: 0; border: 1px solid #ccc; max-width: 300px; position: absolute; background: #fff; z-index: 1000; max-height: 300px; overflow-y: auto; }
+ul#suggestions li { padding: 5px; cursor: pointer; }
+ul#suggestions li.highlight { background-color: #eee; }
+mark { background-color: yellow; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<h1>
+  Calcul clé numéro sécu - by Ghost
+  <span style="font-size:1.2em; margin-left:0.5em;">💥</span>
+  <img src="carte-vitale.png" alt="Carte Vitale"
+       style="height:1.5em; vertical-align:middle; border-radius:6px; margin-left:0.5em;">
+</h1>
+
+<link rel="icon" type="image/png" href="carte-vitale.png" />
+
+<aside>
+<strong>Mode d’emploi de l’outil de calcul clé sécu</strong>
+<p>Pour calculer une clé de sécurité sociale facilement, renseignez :</p>
+<ul>
+<li><b>Le sexe</b> (1 pour les hommes ; 2 pour les femmes) ;</li>
+<li><b>L’année de naissance</b> (si vous êtes né en 1970, tapez 70) ;</li>
+<li><b>Le mois de naissance</b> (janvier = 01, février = 02, etc.) ;</li>
+<li><b>Le numéro du département de naissance</b> (Ain = 01, Aisne = 02… Paris = 75…). Les ressortissants étrangers taperont 99 ;</li>
+<li><b>Le code de la commune de naissance</b> (code officiel INSEE sur 3 chiffres, rempli automatiquement si vous utilisez la recherche) ;</li>
+<li><b>Le numéro d’ordre de naissance</b> qui permet de distinguer les individus nés dans la même localité et à la même date.</li>
+</ul>
+</aside>
+
+<form id="formCleSecu" onsubmit="event.preventDefault(); calculerCle();">
+<fieldset>
+<legend>Informations personnelles</legend>
+
+<label>Sexe :
+<select id="sexe" required>
+<option value="">Sélectionnez</option>
+<option value="1">1 - Homme</option>
+<option value="2">2 - Femme</option>
+</select>
+</label>
+
+<label>Année de naissance (2 chiffres) : <select id="annee" required></select></label>
+<label>Mois de naissance : <select id="mois" required></select></label>
+<label>Département de naissance : <select id="dep" required></select></label>
+
+<h2>Recherche ville / code postal</h2>
+<input type="file" id="fileInput" accept=".json"><br><br>
+<input type="text" id="villeInput" placeholder="Tapez une ville ou un code postal" autocomplete="off" disabled>
+<ul id="suggestions"></ul>
+
+<label>Code commune (3 chiffres) : <input id="commune" type="text" maxlength="3" placeholder="CCC" required></label>
+<label>Numéro d’ordre (3 chiffres) : <input id="ordre" type="text" maxlength="3" placeholder="NNN" required></label>
+
+<div style="margin-top:1rem;">
+<button type="submit" style="font-weight:bold;">Calculer la clé</button>
+<button type="reset" style="font-weight:bold;">Effacer</button>
+</div>
+<div id="msgErreur" class="error"></div>
+</fieldset>
+</form>
+
+<div id="resultat" style="display:none;">
+<h3 style="color:#009739; font-weight:bold;">✔️ N° sécurité sociale prêt à être copié!</h3>
+<div class="flex">
+<input id="numComplet" type="text" readonly style="font-weight:bold; font-size:1rem; width:22rem;">
+<button id="copier" class="copy-btn">Copier</button>
+<span id="copiedMsg" class="copied" style="display:none;">Copié ✅</span>
+<p><strong>Numéro sans clé :</strong> <span id="numero13"></span></p>
+<p><strong>Clé calculée :</strong> <span id="cle"></span></p>
+
+</div>
+</div>
+
+<script>
+/* ==== Remplissage dynamique des listes ==== */
+const moisSelect = document.getElementById("mois");
+for(let i=1;i<=12;i++){
+    const val = String(i).padStart(2,"0");
+    const opt = document.createElement("option");
+    opt.value = val;
+    opt.textContent = val + " - " + new Date(2000,i-1).toLocaleString("fr-FR",{month:"long"});
+    moisSelect.appendChild(opt);
+}
+
+const depSelect = document.getElementById("dep");
+const deps=[];
+for(let i=1;i<=95;i++) deps.push(String(i).padStart(2,"0"));
+deps.push("2A","2B");
+for(let i=971;i<=976;i++) deps.push(String(i));
+for(const d of deps){
+    const opt = document.createElement("option");
+    opt.value=d;
+    opt.textContent=d;
+    depSelect.appendChild(opt);
+}
+
+const anneeSelect = document.getElementById("annee");
+for(let y=2026;y>=1940;y--){
+    const opt = document.createElement("option");
+    opt.value=String(y).slice(-2);
+    opt.textContent=y;
+    anneeSelect.appendChild(opt);
+}
+
+["commune","ordre"].forEach(id=>{
+    document.getElementById(id).addEventListener("input",e=>{
+        e.target.value=e.target.value.replace(/\D/g,"");
+    });
+});
+
+/* ==== Calcul clé ==== */
+function calculerCle(){
+    document.getElementById("msgErreur").textContent="";
+    document.getElementById("copiedMsg").style.display="none";
+
+    const sexe=document.getElementById("sexe").value;
+    const annee=document.getElementById("annee").value.trim();
+    const mois=document.getElementById("mois").value;
+    const dep=document.getElementById("dep").value;
+    const commune=document.getElementById("commune").value.trim();
+    const ordre=document.getElementById("ordre").value.trim();
+
+    if(!["1","2"].includes(sexe)) return erreur("Veuillez sélectionner le sexe.");
+    if(!/^\d{2}$/.test(annee)) return erreur("L’année doit comporter 2 chiffres.");
+    if(!/^\d{3}$/.test(commune)) return erreur("Le code commune doit comporter 3 chiffres.");
+    if(!/^\d{3}$/.test(ordre)) return erreur("Le numéro d’ordre doit comporter 3 chiffres.");
+
+    let depCalc = dep;
+    if(dep==="2A") depCalc="19";
+    else if(dep==="2B") depCalc="18";
+
+    const numero13 = sexe+annee+mois+depCalc.padStart(2,"0")+commune+ordre;
+    const cle = calculCle97(numero13);
+    const numeroComplet = numero13 + String(cle).padStart(2,"0");
+
+    document.getElementById("numero13").textContent=numero13;
+    document.getElementById("cle").textContent=String(cle).padStart(2,"0");
+    document.getElementById("numComplet").value=numeroComplet;
+    document.getElementById("resultat").style.display="block";
+}
+
+function erreur(txt){
+    document.getElementById("msgErreur").textContent=txt;
+    document.getElementById("resultat").style.display="none";
+}
+
+function calculCle97(numStr){
+    let reste=0;
+    for(let i=0;i<numStr.length;i++){
+        reste=(reste*10+parseInt(numStr[i],10))%97;
+    }
+    let cle=97-reste;
+    if(cle===0) cle=97;
+    return cle;
+}
+
+/* ==== Copie ==== */
+document.getElementById("copier").addEventListener("click", async()=>{
+    const val=document.getElementById("numComplet").value;
+    try{
+        await navigator.clipboard.writeText(val);
+        const msg=document.getElementById("copiedMsg");
+        msg.style.display="inline";
+        setTimeout(()=>msg.style.display="none",2000);
+    }catch(e){
+        alert("Copie manuelle : "+val);
+    }
+});
+
+/* ==== Autocomplétion communes ==== */
+let communes=[];
+let indexNom={};
+let indexCP={};
+const input = document.getElementById('villeInput');
+const suggestions = document.getElementById('suggestions');
+let selectedIndex=-1;
+
+function buildIndex(){
+    indexNom={};
+    indexCP={};
+    for(const c of communes){
+        const keyNom=c.nom.substring(0,3).toLowerCase();
+        const keyCP=c.code_postal.substring(0,3);
+        if(!indexNom[keyNom]) indexNom[keyNom]=[];
+        indexNom[keyNom].push(c);
+        if(!indexCP[keyCP]) indexCP[keyCP]=[];
+        indexCP[keyCP].push(c);
+    }
+}
+
+function search(query){
+    query=query.toLowerCase();
+    let results=[];
+    if(query.length>=3){
+        const key=query.substring(0,3);
+        if(indexNom[key]) results=results.concat(indexNom[key].filter(c=>c.nom.toLowerCase().includes(query)));
+    }
+    if(/^\d{1,5}$/.test(query)){
+        const key=query.substring(0,3);
+        if(indexCP[key]) results=results.concat(indexCP[key].filter(c=>c.code_postal.includes(query)));
+    }
+    const seen=new Set();
+    results=results.filter(c=>{
+        const id=c.code_insee;
+        if(seen.has(id)) return false;
+        seen.add(id);
+        return true;
+    });
+    return results;
+}
+
+function highlightMatch(text, query){
+    const regex=new RegExp(`(${query})`, 'i');
+    return text.replace(regex,'<mark>$1</mark>');
+}
+
+function updateSuggestions(){
+    const val=input.value.trim();
+    suggestions.innerHTML='';
+    selectedIndex=-1;
+    if(!val) return;
+    const matches=search(val);
+    matches.forEach(c=>{
+        const li=document.createElement('li');
+        li.innerHTML=`${highlightMatch(c.nom,val)} / ${highlightMatch(c.code_postal,val)}`;
+        li.addEventListener('click',()=>selectItem(c));
+        suggestions.appendChild(li);
+    });
+}
+
+function selectItem(commune){
+    input.value=`${commune.nom} / ${commune.code_postal}`;
+    // Remplir le champ #commune avec les 3 derniers chiffres du code INSEE
+    document.getElementById('commune').value = commune.code_insee.slice(-3);
+    suggestions.innerHTML='';
+}
+
+input.addEventListener('input',updateSuggestions);
+input.addEventListener('keydown',function(e){
+    const items=suggestions.querySelectorAll('li');
+    if(!items.length) return;
+    if(e.key==='ArrowDown'){ selectedIndex=(selectedIndex+1)%items.length; updateHighlight(items); e.preventDefault(); }
+    else if(e.key==='ArrowUp'){ selectedIndex=(selectedIndex-1+items.length)%items.length; updateHighlight(items); e.preventDefault(); }
+    else if(e.key==='Enter'){ 
+        if(selectedIndex>=0){ selectItem(communes.find(c=>`${c.nom} / ${c.code_postal}`===items[selectedIndex].textContent)); }
+        e.preventDefault();
+    }
+});
+
+function updateHighlight(items){
+    items.forEach((li,idx)=>li.classList.toggle('highlight',idx===selectedIndex));
+}
+
+/* ==== Chargement JSON communes ==== */
+document.getElementById('fileInput').addEventListener('change',function(e){
+    const file=e.target.files[0];
+    if(!file) return;
+    const reader=new FileReader();
+    reader.onload=function(evt){
+        communes=JSON.parse(evt.target.result);
+        buildIndex();
+        input.disabled=false;
+    };
+    reader.readAsText(file);
+});
+</script>
+
+</body>
+</html>
