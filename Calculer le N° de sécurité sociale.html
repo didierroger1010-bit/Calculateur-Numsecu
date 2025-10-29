@@ -52,21 +52,23 @@ aside {
 }
 
 /* Version desktop : aside à gauche, formulaire à droite */
+/* Version desktop : aside à droite, formulaire à gauche */
 @media(min-width: 768px) {
     .container {
         flex-direction: row;
         align-items: flex-start;
     }
+    form {
+        width: calc(100% - 320px);
+        order: 1; /* formulaire à gauche */
+    }
     aside {
         width: 300px;
         flex-shrink: 0;
         max-height: none;
-    }
-    form {
-        width: calc(100% - 320px);
+        order: 2; /* aside à droite */
     }
 }
-
 /* Suggestions autocomplete */
 ul#suggestions { list-style: none; padding: 0; margin: 0; border: 1px solid #ccc; max-width: 300px; background: #fff; z-index: 1000; max-height: 300px; overflow-y: auto; position: absolute; }
 ul#suggestions li { padding: 5px; cursor: pointer; }
