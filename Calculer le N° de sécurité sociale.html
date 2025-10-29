@@ -20,7 +20,7 @@ body {
 /* Titres et champs */
 h1 { color: #ffffff; }
 fieldset { border: 1px solid #ccc; border-radius: 8px; padding: 1rem; background: white; margin-top: 1rem; max-width: 480px; }
-legend { font-weight: bold; color: #003366; }
+legend { font-weight: bold; color: #003366; padding-top: 3rem; }
 label { display: block; margin-top: 0.6rem; }
 input, select { padding: 0.4rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 6px; width: auto; min-width: 120px; max-width: 250px; box-sizing: border-box; }
 select#sexe { background: #3aa956; color: white; font-weight: bold; }
@@ -97,10 +97,10 @@ mark { background-color: yellow; font-weight: bold; }
 <ul>
 <li><b>Le sexe</b> (1 pour les hommes ; 2 pour les femmes) ;</li>
 <li><b>L’année de naissance</b> (si vous êtes né en 1970, tapez 70) ;</li>
-<li><b>Le mois de naissance</b> ;</li>
-<li><b>Le numéro du département</b> ;</li>
-<li><b>Le code de la commune</b> ;</li>
-<li><b>Le numéro d’ordre</b>.</li>
+<li><b>Le mois de naissance</b> (janvier = 01, février = 02, etc.) ;</li>
+<li><b>Le numéro du département de naissance</b> (Ain = 01, Aisne = 02… Paris = 75…). Les ressortissants étrangers taperont 99 ;</li>
+<li><b>Le code de la commune de naissance</b> (code officiel INSEE sur 3 chiffres, rempli automatiquement si vous utilisez la recherche) ;</li>
+<li><b>Le numéro d’ordre de naissance</b> qui permet de distinguer les individus nés dans la même localité et à la même date.</li>
 </ul>
 </aside>
 
@@ -321,4 +321,5 @@ loadCommunes();
 
 </body>
 </html>
+
 
