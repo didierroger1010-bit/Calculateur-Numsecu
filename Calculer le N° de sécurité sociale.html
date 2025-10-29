@@ -46,26 +46,15 @@ aside {
 /* 🎯 AJOUT POUR MOBILE    */
 /* ======================= */
 /* Mobile : max 768px */
+/* Pour mobile (tout ce qui est <= 768px) */
 @media (max-width: 768px) {
     aside {
-        position: relative;       /* n’est plus fixe */
-        width: 100%;              /* prend toute la largeur */
-        margin: 1rem 0;           /* espace autour */
-        max-height: none;         /* s’adapte au contenu */
-        overflow: visible;        /* pas de scroll interne */
-        box-shadow: none;         /* supprime l’ombre */
-    }
-
-    body {
-        margin-right: 1rem;       /* ajuste pour mobile */
-    }
-
-    fieldset {
-        max-width: 100%;          /* s’adapte à l’écran */
-    }
-
-    #resultat input {
-        width: 100%;              /* champ complet */
+        position: relative;   /* dans le flux du document */
+        width: 100%;          /* prend toute la largeur */
+        max-height: none;     /* pas de limite */
+        overflow: visible;    /* le scroll sera celui de la page */
+        margin: 1rem 0;       /* espace autour */
+        box-shadow: none;
     }
 }
 
@@ -355,6 +344,7 @@ fetch("https://didierroger1010-bit.github.io/Calculateur-Numsecu/communes.json")
 
 </body>
 </html>
+
 
 
 
