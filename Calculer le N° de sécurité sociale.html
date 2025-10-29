@@ -46,27 +46,21 @@ aside {
 /* 🎯 AJOUT POUR MOBILE    */
 /* ======================= */
 @media (max-width: 768px) {
+    aside {
+        position: relative;   /* plus fixe, devient normal dans le flux */
+        width: 100%;          /* prend toute la largeur disponible */
+        margin-top: 1rem;
+        max-height: none;     /* laisse la hauteur s’adapter au contenu */
+        overflow: visible;    /* plus de scroll interne */
+        box-shadow: none;     /* pas d’ombre gênante */
+    }
+
     body {
-        margin: 1rem;
-        margin-right: 1rem;
-        background-attachment: scroll; /* évite les bugs sur mobile */
+        margin-right: 1rem;   /* supprime le gros décalage de desktop */
     }
 
     fieldset {
         max-width: 100%;
-        margin-top: 1rem;
-    }
-
-    aside {
-        position: static; /* plus fixe sur mobile */
-        width: auto;
-        margin-top: 1rem;
-        box-shadow: none;
-    }
-
-    h1 {
-        font-size: 1.3rem;
-        text-align: center;
     }
 
     #resultat input {
@@ -360,6 +354,7 @@ fetch("https://didierroger1010-bit.github.io/Calculateur-Numsecu/communes.json")
 
 </body>
 </html>
+
 
 
 
