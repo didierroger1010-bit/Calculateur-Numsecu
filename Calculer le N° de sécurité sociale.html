@@ -290,14 +290,14 @@ function updateHighlight(items){
 }
 
 /* ==== Chargement JSON communes ==== */
-document.getElementById('fileInput').addEventListener('change',function(e){
-    const file=e.target.files[0];
+document.getElementById('fileInput').addEventListener('change', function(e){
+    const file = e.target.files[0];
     if(!file) return;
-    const reader=new FileReader();
-    reader.onload=function(evt){
-        communes=JSON.parse(evt.target.result);
+    const reader = new FileReader();
+    reader.onload = function(evt){
+        communes = JSON.parse(evt.target.result);
         buildIndex();
-        input.disabled=false;
+        input.disabled = false;
     };
     reader.readAsText(file);
 });
@@ -305,3 +305,4 @@ document.getElementById('fileInput').addEventListener('change',function(e){
 
 </body>
 </html>
+
