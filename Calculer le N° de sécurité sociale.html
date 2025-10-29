@@ -290,19 +290,18 @@ function updateHighlight(items){
 }
 
 /* ==== Chargement JSON communes ==== */
-document.getElementById('fileInput').addEventListener('change', function(e){
-    const file = e.target.files[0];
-    if(!file) return;
-    const reader = new FileReader();
-    reader.onload = function(evt){
-        communes = JSON.parse(evt.target.result);
-        buildIndex();
-        input.disabled = false;
-    };
-    reader.readAsText(file);
-});
+fetch("https://ton-nom-utilisateur.github.io/nom-du-depot/communes.json")
+  .then(response => response.json())
+  .then(data => {
+      communes = data;
+      buildIndex();
+      input.disabled = false;
+  })
+  .catch(err => console.error("Erreur lors du chargement des communes :", err));
+
 </script>
 
 </body>
 </html>
+
 
