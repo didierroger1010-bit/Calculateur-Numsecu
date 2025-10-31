@@ -15,13 +15,16 @@ html, body {
 
 .bg {
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
+    top: 0; left: 0; width: 100%; height: 100%;
     background-image: url('mur.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    z-index: -1; /* derrière tout le contenu */
+    z-index: -1;
+    transform: translateZ(0); /* force rendu fixe sur iOS */
+    backface-visibility: hidden; /* améliore stabilité */
 }
+
 
 /* ===== Contenu ===== */
 body {
@@ -333,3 +336,4 @@ loadCommunes();
 
 </body>
 </html>
+
