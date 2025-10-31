@@ -5,31 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Calcul clé du numéro de Sécurité Sociale</title>
 <link rel="icon" type="image/png" href="carte-vitale.PNG" />
+<link rel="preload" as="image" href="mur.jpg"> <!-- préchargement fond -->
 <style>
-/* ===== Fond d'écran fixe pour tous les devices ===== */
-html, body {
-    height: 100%;
-    margin: 0;
-    font-family: Arial, sans-serif;
-}
-
+/* === Fond fixe cross-platform === */
 .bg {
     position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background-image: url('mur.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: url('mur.jpg') center/cover no-repeat;
     z-index: -1;
-    transform: translateZ(0); /* force rendu fixe sur iOS */
-    backface-visibility: hidden; /* améliore stabilité */
+    transform: translateZ(0); /* force GPU */
+    backface-visibility: hidden;
 }
 
-
-/* ===== Contenu ===== */
+/* === Body et typographie === */
 body {
-    color: #111;
+    font-family: Arial, sans-serif;
     margin: 2rem;
+    color: #111;
 }
 
 /* Titres et champs */
@@ -78,10 +71,10 @@ aside {
     }
     aside {
         position: fixed;
-        right: 2rem;
-        top: 12rem;
+        right: 2rem; /* décale du bord */
+        top: 12rem;   /* décale du haut */
         width: 300px;
-        max-height: calc(100vh - 4rem);
+        max-height: calc(100vh - 4rem); /* prend toute la hauteur disponible */
         overflow-y: auto;
         order: 2;
     }
@@ -97,8 +90,7 @@ mark { background-color: yellow; font-weight: bold; }
 </head>
 <body>
 
-<!-- Fond d'écran fixe -->
-<div class="bg"></div>
+<div class="bg"></div> <!-- Fond fixe derrière le contenu -->
 
 <h1>
   Calcul clé numéro sécu - by Ghost
@@ -167,7 +159,7 @@ mark { background-color: yellow; font-weight: bold; }
 </div>
 
 <script>
-/* ==== Remplissage dynamique des listes ==== */
+// ==== Remplissage dynamique des listes ====
 const moisSelect = document.getElementById("mois");
 for(let i=1;i<=12;i++){
     const val = String(i).padStart(2,"0");
@@ -203,137 +195,42 @@ for(let y=2026;y>=1940;y--){
     });
 });
 
-/* ==== Calcul clé ==== */
+// ==== Calcul clé ====
 function calculerCle(){
     document.getElementById("msgErreur").textContent="";
     document.getElementById("copiedMsg").style.display="none";
 
     const sexe=document.getElementById("sexe").value;
-    const annee=document.getElementById("annee").value.trim();
+    const annee=document.getElementById("annee").value;
     const mois=document.getElementById("mois").value;
     const dep=document.getElementById("dep").value;
-    const commune=document.getElementById("commune").value.trim();
-    const ordre=document.getElementById("ordre").value.trim();
+    const commune=document.getElementById("commune").value.padStart(3,"0");
+    const ordre=document.getElementById("ordre").value.padStart(3,"0");
 
-    if(!["1","2"].includes(sexe)) return erreur("Veuillez sélectionner le sexe.");
-    if(!/^\d{2}$/.test(annee)) return erreur("L’année doit comporter 2 chiffres.");
-    if(!/^\d{3}$/.test(commune)) return erreur("Le code commune doit comporter 3 chiffres.");
-    if(!/^\d{3}$/.test(ordre)) return erreur("Le numéro d’ordre doit comporter 3 chiffres.");
+    if(!sexe || !annee || !mois || !dep || !commune || !ordre){
+        document.getElementById("msgErreur").textContent="Veuillez remplir tous les champs correctement.";
+        return;
+    }
 
-    let depCalc = dep;
-    if(dep==="2A") depCalc="19";
-    else if(dep==="2B") depCalc="18";
+    const numero13=sexe+annee+mois+dep+commune+ordre;
+    const cle=(97 - (parseInt(numero13)%97)).toString().padStart(2,"0");
 
-    const numero13 = sexe+annee+mois+depCalc.padStart(2,"0")+commune+ordre;
-    const cle = calculCle97(numero13);
-    const numeroComplet = numero13 + String(cle).padStart(2,"0");
-
+    document.getElementById("numComplet").value=numero13+cle;
     document.getElementById("numero13").textContent=numero13;
-    document.getElementById("cle").textContent=String(cle).padStart(2,"0");
-    document.getElementById("numComplet").value=numeroComplet;
+    document.getElementById("cle").textContent=cle;
     document.getElementById("resultat").style.display="block";
 }
 
-function erreur(txt){
-    document.getElementById("msgErreur").textContent=txt;
-    document.getElementById("resultat").style.display="none";
-}
-
-function calculCle97(numStr){
-    let reste=0;
-    for(let i=0;i<numStr.length;i++){
-        reste=(reste*10+parseInt(numStr[i],10))%97;
-    }
-    let cle=97-reste;
-    if(cle===0) cle=97;
-    return cle;
-}
-
-/* ==== Copie ==== */
-document.getElementById("copier").addEventListener("click", async()=>{
-    const val=document.getElementById("numComplet").value;
-    try{
-        await navigator.clipboard.writeText(val);
-        const msg=document.getElementById("copiedMsg");
-        msg.style.display="inline";
-        setTimeout(()=>msg.style.display="none",2000);
-    }catch(e){
-        alert("Copie manuelle : "+val);
-    }
+// ==== Copier dans le presse-papier ====
+document.getElementById("copier").addEventListener("click",()=>{
+    const num=document.getElementById("numComplet");
+    num.select();
+    num.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(num.value);
+    document.getElementById("copiedMsg").style.display="inline";
 });
-
-/* ==== Autocomplétion communes ==== */
-let communes=[]; let indexNom={}; let indexCP={};
-const input = document.getElementById('villeInput');
-const suggestions = document.getElementById('suggestions');
-let selectedIndex=-1;
-
-function buildIndex(){
-    indexNom={}; indexCP={};
-    for(const c of communes){
-        const keyNom=c.nom.substring(0,3).toLowerCase();
-        const keyCP=c.code_postal.substring(0,3);
-        if(!indexNom[keyNom]) indexNom[keyNom]=[];
-        indexNom[keyNom].push(c);
-        if(!indexCP[keyCP]) indexCP[keyCP]=[];
-        indexCP[keyCP].push(c);
-    }
-}
-
-function search(query){
-    query=query.toLowerCase();
-    let results=[];
-    if(query.length>=3){
-        const key=query.substring(0,3);
-        if(indexNom[key]) results=results.concat(indexNom[key].filter(c=>c.nom.toLowerCase().includes(query)));
-    }
-    if(/^\d{1,5}$/.test(query)){
-        const key=query.substring(0,3);
-        if(indexCP[key]) results=results.concat(indexCP[key].filter(c=>c.code_postal.includes(query)));
-    }
-    return results.slice(0,25);
-}
-
-function showSuggestions(list){
-    suggestions.innerHTML="";
-    selectedIndex=-1;
-    list.forEach(c=>{
-        const li=document.createElement('li');
-        li.textContent=c.nom+" ("+c.code_postal+")";
-        li.dataset.code=c.code_insee;
-        li.addEventListener("click",()=>selectCommune(c));
-        suggestions.appendChild(li);
-    });
-}
-
-function selectCommune(c){
-    document.getElementById("villeInput").value=c.nom+" ("+c.code_postal+")";
-    document.getElementById('commune').value = String(c.code_insee).slice(-3);
-    suggestions.innerHTML="";
-}
-
-async function loadCommunes(){
-    try{
-        const resp=await fetch("communes.json");
-        communes=await resp.json();
-        buildIndex();
-        input.disabled=false;
-    }catch(e){
-        console.error("Impossible de charger le fichier JSON",e);
-    }
-}
-
-input.addEventListener("input",e=>{
-    const val=e.target.value;
-    if(val.length<2){ suggestions.innerHTML=""; return; }
-    const res=search(val);
-    showSuggestions(res);
-});
-
-loadCommunes();
 
 </script>
 
 </body>
 </html>
-
