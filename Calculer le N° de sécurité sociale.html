@@ -6,15 +6,27 @@
 <title>Calcul clé du numéro de Sécurité Sociale</title>
 <link rel="icon" type="image/png" href="carte-vitale.PNG" />
 <style>
-body {
+/* ===== Fond d'écran fixe pour tous les devices ===== */
+html, body {
+    height: 100%;
+    margin: 0;
     font-family: Arial, sans-serif;
-    margin: 2rem;
-    color: #111;
+}
+
+.bg {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
     background-image: url('mur.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    background-attachment: fixed;
+    z-index: -1; /* derrière tout le contenu */
+}
+
+/* ===== Contenu ===== */
+body {
+    color: #111;
+    margin: 2rem;
 }
 
 /* Titres et champs */
@@ -63,10 +75,10 @@ aside {
     }
     aside {
         position: fixed;
-        right: 2rem; /* décale du bord */
-        top: 12rem;   /* décale du haut */
+        right: 2rem;
+        top: 12rem;
         width: 300px;
-        max-height: calc(100vh - 4rem); /* prend toute la hauteur disponible */
+        max-height: calc(100vh - 4rem);
         overflow-y: auto;
         order: 2;
     }
@@ -81,6 +93,9 @@ mark { background-color: yellow; font-weight: bold; }
 </style>
 </head>
 <body>
+
+<!-- Fond d'écran fixe -->
+<div class="bg"></div>
 
 <h1>
   Calcul clé numéro sécu - by Ghost
@@ -245,16 +260,13 @@ document.getElementById("copier").addEventListener("click", async()=>{
 });
 
 /* ==== Autocomplétion communes ==== */
-let communes=[];
-let indexNom={};
-let indexCP={};
+let communes=[]; let indexNom={}; let indexCP={};
 const input = document.getElementById('villeInput');
 const suggestions = document.getElementById('suggestions');
 let selectedIndex=-1;
 
 function buildIndex(){
-    indexNom={};
-    indexCP={};
+    indexNom={}; indexCP={};
     for(const c of communes){
         const keyNom=c.nom.substring(0,3).toLowerCase();
         const keyCP=c.code_postal.substring(0,3);
@@ -321,10 +333,3 @@ loadCommunes();
 
 </body>
 </html>
-
-
-
-
-
-
-
